@@ -5,20 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Grilla de Monitoreo Hemodinámico</title>
     
-    <link rel="icon" href="https://i.imgur.com/G9C7lHy.jpeg" type="image/jpeg">
-    
-    <!-- Configuración para Android / Chrome -->
+    <link rel="icon" href="icon.png" type="image/png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b2a5c">
-    
-    <!-- Configuración para Apple (iPhone/iPad) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Monitoreo ICON">
+    <meta name="apple-mobile-web-app-title" content="Monitoreo">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://i.imgur.com/G9C7lHy.jpeg">
-    <!-- ========================================== -->
-
-    <!-- Librería para exportar a Excel -->
+    <link rel="apple-touch-icon" href="icon.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
@@ -80,7 +73,6 @@
             letter-spacing: 1px;
         }
 
-        /* Grid Datos del Paciente */
         .patient-data {
             display: grid;
             grid-template-columns: auto repeat(10, 1fr);
@@ -136,7 +128,6 @@
             background-color: #f0f9ff;
         }
 
-        /* Contenedor Responsive para Tablas */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -190,7 +181,6 @@
             font-weight: bold;
         }
 
-        /* Colores Cabeceras Específicas */
         .bg-fc { background-color: #ef5350; color: white; }
         .bg-ta { background-color: #ff9800; color: white; }
         .bg-fr { background-color: #26a69a; color: white; }
@@ -207,7 +197,6 @@
         .sub-bg-contract { background-color: var(--contractilidad-color); }
         .sub-bg-fluidos { background-color: var(--fluidos-color); }
 
-        /* Estado y Conducta */
         .estado-container {
             display: flex;
             justify-content: space-around;
@@ -221,7 +210,6 @@
             cursor: pointer;
         }
 
-        /* Valores de Referencia */
         .reference-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -260,7 +248,6 @@
             border-bottom: none;
         }
 
-        /* Botón Exportar Moderno */
         .btn-exportar {
             display: flex;
             justify-content: center;
@@ -326,7 +313,6 @@
         <span style="font-size: 12px; opacity: 0.9;">Bioimpedancia Torácica | Uso clínico exclusivo</span>
     </div>
 
-    <!-- 1. DATOS DEL PACIENTE -->
     <div class="patient-data">
         <div class="title-box">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
@@ -346,7 +332,6 @@
         <div class="input-group"><label>Hb (g/dL)</label><input type="text" id="pac_hb"></div>
     </div>
 
-    <!-- 2. SIGNOS VITALES -->
     <div class="section-header">SIGNOS VITALES</div>
     <div class="table-responsive">
         <table>
@@ -361,12 +346,10 @@
                 </tr>
             </thead>
             <tbody id="tbody-signos">
-                <!-- Generado por JS -->
             </tbody>
         </table>
     </div>
 
-    <!-- 3. MONITOREO HEMODINÁMICO AVANZADO -->
     <div class="section-header">MONITOREO HEMODINÁMICO AVANZADO</div>
     <div class="table-responsive">
         <table class="hemo-table">
@@ -396,12 +379,10 @@
                 </tr>
             </thead>
             <tbody id="tbody-hemo">
-                <!-- Generado por JS -->
             </tbody>
         </table>
     </div>
 
-    <!-- 4. ESTADO CLÍNICO & CONDUCTA -->
     <div class="section-header">ESTADO CLÍNICO & CONDUCTA</div>
     <div class="table-responsive">
         <table>
@@ -413,12 +394,10 @@
                 </tr>
             </thead>
             <tbody id="tbody-estado">
-                <!-- Generado por JS -->
             </tbody>
         </table>
     </div>
 
-    <!-- 5. VALORES DE REFERENCIA -->
     <div class="section-header" style="border-radius: 6px;">VALORES DE REFERENCIA</div>
     <div class="reference-grid">
         <div class="ref-card">
@@ -467,7 +446,6 @@
         </div>
     </div>
 
-    <!-- BOTÓN DE EXPORTACIÓN MODERNO -->
     <button class="btn-exportar" onclick="exportarExcel()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>

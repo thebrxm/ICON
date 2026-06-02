@@ -2,10 +2,25 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grilla de Monitoreo Hemodinámico - ICON</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Grilla de Monitoreo Hemodinámico</title>
+    
+    <link rel="icon" href="https://i.imgur.com/eibhtgq.jpeg" type="image/jpeg">
+    
+    <!-- Configuración para Android / Chrome -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0b2a5c">
+    
+    <!-- Configuración para Apple (iPhone/iPad) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Monitoreo ICON">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/eibhtgq.jpeg">
+    <!-- ========================================== -->
+
     <!-- Librería para exportar a Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <style>
         :root {
             --primary-dark: #0b2a5c;
@@ -136,10 +151,9 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px; /* Evita que se aplaste demasiado en móviles */
+            min-width: 600px;
         }
 
-        /* Ancho especial para la tabla hemodinámica que es muy ancha */
         .hemo-table {
             min-width: 1000px; 
         }
@@ -162,7 +176,7 @@
             text-align: center;
             box-sizing: border-box;
             outline: none;
-            min-width: 50px; /* Asegura que el input sea clickeable en móvil */
+            min-width: 50px;
         }
 
         td input[type="text"]:focus {
@@ -279,59 +293,27 @@
             box-shadow: 0 2px 10px rgba(4, 120, 87, 0.3);
         }
 
-        /* =========================================
-           MEDIA QUERIES (Para Móviles y Tablets)
-           ========================================= */
-        
+        /* Media Queries (Mobile/Tablets) */
         @media (max-width: 1024px) {
-            .patient-data {
-                grid-template-columns: repeat(5, 1fr);
-            }
-            .patient-data .title-box {
-                grid-column: span 5;
-            }
-            .reference-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+            .patient-data { grid-template-columns: repeat(5, 1fr); }
+            .patient-data .title-box { grid-column: span 5; }
+            .reference-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
         @media (max-width: 768px) {
-            .header-title {
-                flex-direction: column;
-                text-align: center;
-            }
-            .patient-data {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .patient-data .title-box {
-                grid-column: span 2;
-            }
-            .reference-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .header-title { flex-direction: column; text-align: center; }
+            .patient-data { grid-template-columns: repeat(2, 1fr); }
+            .patient-data .title-box { grid-column: span 2; }
+            .reference-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            .container {
-                padding: 15px;
-            }
-            .patient-data {
-                grid-template-columns: 1fr;
-            }
-            .patient-data .title-box {
-                grid-column: span 1;
-            }
-            .reference-grid {
-                grid-template-columns: 1fr;
-            }
-            .estado-container {
-                flex-direction: column;
-                padding: 5px;
-                gap: 5px;
-            }
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            .patient-data { grid-template-columns: 1fr; }
+            .patient-data .title-box { grid-column: span 1; }
+            .reference-grid { grid-template-columns: 1fr; }
+            .estado-container { flex-direction: column; padding: 5px; gap: 5px; }
         }
     </style>
 </head>
@@ -347,7 +329,6 @@
     <!-- 1. DATOS DEL PACIENTE -->
     <div class="patient-data">
         <div class="title-box">
-            <!-- SVG de Usuario en color Blanco puro -->
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
@@ -488,7 +469,6 @@
 
     <!-- BOTÓN DE EXPORTACIÓN MODERNO -->
     <button class="btn-exportar" onclick="exportarExcel()">
-        <!-- SVG de descarga moderno -->
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
@@ -500,14 +480,12 @@
 </div>
 
 <script>
-    // Generar filas dinámicamente
     window.onload = function() {
         const tbodySignos = document.getElementById('tbody-signos');
         const tbodyHemo = document.getElementById('tbody-hemo');
         const tbodyEstado = document.getElementById('tbody-estado');
 
         for (let i = 1; i <= 4; i++) {
-            // Signos
             tbodySignos.innerHTML += `
                 <tr>
                     <td style="font-weight:bold">${i}</td>
@@ -519,7 +497,6 @@
                 </tr>
             `;
 
-            // Hemodinámica
             tbodyHemo.innerHTML += `
                 <tr>
                     <td style="font-weight:bold">${i}</td>
@@ -540,7 +517,6 @@
                 </tr>
             `;
 
-            // Estado Clínico
             tbodyEstado.innerHTML += `
                 <tr>
                     <td style="font-weight:bold">${i}</td>
@@ -618,7 +594,6 @@
         }
 
         const datosCompletos = datosPaciente.concat(filasGrilla);
-
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(datosCompletos);
 

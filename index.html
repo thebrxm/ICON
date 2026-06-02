@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grilla de Monitoreo Hemodinámico - ICON</title>
+    <!-- Librería para exportar a Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-dark: #0b2a5c;
+            --bg-light: #f4f6f9;
+            --border-color: #bcc3cd;
+            --flujo-color: #cce0f5;
+            --vascular-color: #d1f0e8;
+            --contractilidad-color: #f3e5f5;
+            --fluidos-color: #e8f5e9;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-title {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .section-header {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* Grid Datos del Paciente */
+        .patient-data {
+            display: grid;
+            grid-template-columns: auto repeat(10, 1fr);
+            gap: 5px;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        .patient-data .title-box {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .input-group label {
+            background-color: var(--bg-light);
+            padding: 3px;
+            font-size: 10px;
+            color: #555;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .input-group input {
+            border: none;
+            padding: 5px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        /* Tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            text-align: center;
+            padding: 0;
+        }
+
+        th {
+            font-size: 11px;
+            padding: 5px;
+        }
+
+        td input[type="text"] {
+            width: 100%;
+            height: 30px;
+            border: none;
+            text-align: center;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        td input[type="text"]:focus {
+            background-color: #eef5ff;
+        }
+
+        .col-registro {
+            background-color: var(--primary-dark);
+            color: white;
+            width: 80px;
+            font-weight: bold;
+        }
+
+        /* Colores Cabeceras Específicas */
+        .bg-fc { background-color: #ef5350; color: white; }
+        .bg-ta { background-color: #ff9800; color: white; }
+        .bg-fr { background-color: #26a69a; color: white; }
+        .bg-t { background-color: #ab47bc; color: white; }
+        .bg-spo2 { background-color: #ec407a; color: white; }
+
+        .bg-flujo { background-color: #1976d2; color: white; }
+        .bg-vascular { background-color: #00897b; color: white; }
+        .bg-contract { background-color: #8e24aa; color: white; }
+        .bg-fluidos { background-color: #43a047; color: white; }
+
+        .sub-bg-flujo { background-color: var(--flujo-color); }
+        .sub-bg-vascular { background-color: var(--vascular-color); }
+        .sub-bg-contract { background-color: var(--contractilidad-color); }
+        .sub-bg-fluidos { background-color: var(--fluidos-color); }
+
+        /* Estado y Conducta */
+        .estado-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 100%;
+        }
+        
+        /* Valores de Referencia */
+        .reference-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            background-color: var(--primary-dark);
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .ref-card {
+            background-color: white;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .ref-header {
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .ref-content {
+            padding: 10px;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .ref-content div {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Botón Exportar */
+        .btn-exportar {
+            display: block;
+            width: 100%;
+            background-color: #2e7d32;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-exportar:hover {
+            background-color: #1b5e20;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="header-title">
+        <h1>GRILLA DE MONITOREO HEMODINÁMICO</h1>
+        <span style="font-size: 12px;">Bioimpedancia Torácica | Uso clínico exclusivo</span>
+    </div>
+
+    <!-- 1. DATOS DEL PACIENTE -->
+    <div class="patient-data">
+        <div class="title-box">👤 DATOS DEL PACIENTE</div>
+        <div class="input-group"><label>Fecha</label><input type="text" id="pac_fecha"></div>
+        <div class="input-group"><label>Hora</label><input type="text" id="pac_hora"></div>
+        <div class="input-group"><label>ID / Cama</label><input type="text" id="pac_id"></div>
+        <div class="input-group"><label>Edad</label><input type="text" id="pac_edad"></div>
+        <div class="input-group"><label>Sexo</label><input type="text" id="pac_sexo"></div>
+        <div class="input-group"><label>Peso (kg)</label><input type="text" id="pac_peso"></div>
+        <div class="input-group"><label>Talla (cm)</label><input type="text" id="pac_talla"></div>
+        <div class="input-group"><label>PA (mmHg)</label><input type="text" id="pac_pa"></div>
+        <div class="input-group"><label>SpO2 (%)</label><input type="text" id="pac_spo2"></div>
+        <div class="input-group"><label>Hb (g/dL)</label><input type="text" id="pac_hb"></div>
+    </div>
+
+    <!-- 2. SIGNOS VITALES -->
+    <div class="section-header">SIGNOS VITALES</div>
+    <table>
+        <thead>
+            <tr>
+                <th class="col-registro">REGISTRO</th>
+                <th class="bg-fc">FC<br>(lpm)</th>
+                <th class="bg-ta">TA<br>(mmHg)</th>
+                <th class="bg-fr">FR<br>(resp/min)</th>
+                <th class="bg-t">Tº<br>(ºC)</th>
+                <th class="bg-spo2">SpO2<br>(%)</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-signos">
+            <!-- Filas generadas por JS para mantener código limpio -->
+        </tbody>
+    </table>
+
+    <!-- 3. MONITOREO HEMODINÁMICO AVANZADO -->
+    <div class="section-header">MONITOREO HEMODINÁMICO AVANZADO</div>
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2" class="col-registro">REGISTRO</th>
+                <th colspan="5" class="bg-flujo">FLUJO SANGUÍNEO</th>
+                <th colspan="2" class="bg-vascular">SISTEMA VASCULAR</th>
+                <th colspan="4" class="bg-contract">CONTRACTILIDAD</th>
+                <th colspan="3" class="bg-fluidos">ESTADO DE FLUIDOS</th>
+            </tr>
+            <tr>
+                <!-- Flujo -->
+                <th class="sub-bg-flujo">HR<br><span style="font-weight:normal;font-size:9px">(lpm)</span></th>
+                <th class="sub-bg-flujo">SV<br><span style="font-weight:normal;font-size:9px">(mL)</span></th>
+                <th class="sub-bg-flujo">SI<br><span style="font-weight:normal;font-size:9px">(mL/m²)</span></th>
+                <th class="sub-bg-flujo">CO<br><span style="font-weight:normal;font-size:9px">(L/min)</span></th>
+                <th class="sub-bg-flujo">CI<br><span style="font-weight:normal;font-size:9px">(L/min/m²)</span></th>
+                <!-- Vascular -->
+                <th class="sub-bg-vascular">SVR<br><span style="font-weight:normal;font-size:9px">(din-s/cm³)</span></th>
+                <th class="sub-bg-vascular">SVRI<br><span style="font-weight:normal;font-size:9px">(din-s/cm³-m²)</span></th>
+                <!-- Contractilidad -->
+                <th class="sub-bg-contract">ICON<br><span style="font-weight:normal;font-size:9px">(Ohm)</span></th>
+                <th class="sub-bg-contract">VIC<br><span style="font-weight:normal;font-size:9px">(%)</span></th>
+                <th class="sub-bg-contract">STR<br><span style="font-weight:normal;font-size:9px">(PEP/LVET)</span></th>
+                <th class="sub-bg-contract">CPI</th>
+                <!-- Fluidos -->
+                <th class="sub-bg-fluidos">TFC<br><span style="font-weight:normal;font-size:9px">(1/kOhm)</span></th>
+                <th class="sub-bg-fluidos">SVV<br><span style="font-weight:normal;font-size:9px">(%)</span></th>
+                <th class="sub-bg-fluidos">FTC<br><span style="font-weight:normal;font-size:9px">(ms)</span></th>
+            </tr>
+        </thead>
+        <tbody id="tbody-hemo">
+            <!-- Filas generadas por JS -->
+        </tbody>
+    </table>
+
+    <!-- 4. ESTADO CLÍNICO & CONDUCTA -->
+    <div class="section-header">ESTADO CLÍNICO & CONDUCTA</div>
+    <table>
+        <thead>
+            <tr>
+                <th class="col-registro" style="width: 80px;">REGISTRO</th>
+                <th style="width: 30%; background-color:#e8f5e9; color:#2e7d32">ESTADO</th>
+                <th style="background-color:#fff3e0; color:#e65100">CONDUCTA / INTERVENCIÓN</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-estado">
+            <!-- Filas generadas por JS -->
+        </tbody>
+    </table>
+
+    <!-- 5. VALORES DE REFERENCIA -->
+    <div class="section-header">VALORES DE REFERENCIA</div>
+    <div class="reference-grid">
+        <div class="ref-card">
+            <div class="ref-header" style="background-color:#ffebee; color:#c62828">SIGNOS VITALES</div>
+            <div class="ref-content" style="background-color:#fff5f5">
+                <div><span>FC:</span> <span>60 - 100 lpm</span></div>
+                <div><span>TA:</span> <span>90/60 - 140/90 mmHg</span></div>
+                <div><span>FR:</span> <span>12 - 20 resp/min</span></div>
+                <div><span>Tº:</span> <span>36 - 37.5 ºC</span></div>
+                <div><span>SpO2:</span> <span>≥ 95 %</span></div>
+            </div>
+        </div>
+        <div class="ref-card">
+            <div class="ref-header" style="background-color:#e3f2fd; color:#1565c0">FLUJO SANGUÍNEO</div>
+            <div class="ref-content" style="background-color:#f0f7ff">
+                <div><span>HR:</span> <span>60 - 100 lpm</span></div>
+                <div><span>SV:</span> <span>60 - 100 mL</span></div>
+                <div><span>SI:</span> <span>33 - 47 mL/m²</span></div>
+                <div><span>CO:</span> <span>4 - 8 L/min</span></div>
+                <div><span>CI:</span> <span>2.5 - 4.2 L/min/m²</span></div>
+            </div>
+        </div>
+        <div class="ref-card">
+            <div class="ref-header" style="background-color:#e0f2f1; color:#00695c">SISTEMA VASCULAR</div>
+            <div class="ref-content" style="background-color:#eff9f8">
+                <div><span>SVR:</span> <span>900 - 1200 din-s/cm³</span></div>
+                <div><span>SVRI:</span> <span>1500 - 2500 din-s/cm³-m²</span></div>
+            </div>
+        </div>
+        <div class="ref-card">
+            <div class="ref-header" style="background-color:#f3e5f5; color:#6a1b9a">CONTRACTILIDAD</div>
+            <div class="ref-content" style="background-color:#faf5fa">
+                <div><span>ICON:</span> <span>> 35 Ohm</span></div>
+                <div><span>VIC:</span> <span>< 850 mL/m²</span></div>
+                <div><span>STR:</span> <span>(PEP/LVET) Valor relativo</span></div>
+                <div><span>CPI:</span> <span>Valor relativo</span></div>
+            </div>
+        </div>
+        <div class="ref-card">
+            <div class="ref-header" style="background-color:#e8f5e9; color:#2e7d32">ESTADO DE FLUIDOS</div>
+            <div class="ref-content" style="background-color:#f1f8f2">
+                <div><span>TFC:</span> <span>21 - 37 1/kOhm</span></div>
+                <div><span>SVV:</span> <span>< 13 %</span></div>
+                <div><span>FTC:</span> <span>— ms</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÓN DE EXPORTACIÓN -->
+    <button class="btn-exportar" onclick="exportarExcel()">EXPORTAR REPORTE </button>
+
+</div>
+
+<script>
+    // Generar filas dinámicamente para mantener el HTML limpio (4 registros)
+    window.onload = function() {
+        const tbodySignos = document.getElementById('tbody-signos');
+        const tbodyHemo = document.getElementById('tbody-hemo');
+        const tbodyEstado = document.getElementById('tbody-estado');
+
+        for (let i = 1; i <= 4; i++) {
+            // Filas Signos Vitales
+            tbodySignos.innerHTML += `
+                <tr>
+                    <td style="font-weight:bold">${i}</td>
+                    <td><input type="text" id="sv_fc_${i}"></td>
+                    <td><input type="text" id="sv_ta_${i}"></td>
+                    <td><input type="text" id="sv_fr_${i}"></td>
+                    <td><input type="text" id="sv_t_${i}"></td>
+                    <td><input type="text" id="sv_spo2_${i}"></td>
+                </tr>
+            `;
+
+            // Filas Hemodinámica
+            tbodyHemo.innerHTML += `
+                <tr>
+                    <td style="font-weight:bold">${i}</td>
+                    <!-- Flujo -->
+                    <td class="sub-bg-flujo"><input type="text" id="hemo_hr_${i}"></td>
+                    <td class="sub-bg-flujo"><input type="text" id="hemo_sv_${i}"></td>
+                    <td class="sub-bg-flujo"><input type="text" id="hemo_si_${i}"></td>
+                    <td class="sub-bg-flujo"><input type="text" id="hemo_co_${i}"></td>
+                    <td class="sub-bg-flujo"><input type="text" id="hemo_ci_${i}"></td>
+                    <!-- Vascular -->
+                    <td class="sub-bg-vascular"><input type="text" id="hemo_svr_${i}"></td>
+                    <td class="sub-bg-vascular"><input type="text" id="hemo_svri_${i}"></td>
+                    <!-- Contractilidad -->
+                    <td class="sub-bg-contract"><input type="text" id="hemo_icon_${i}"></td>
+                    <td class="sub-bg-contract"><input type="text" id="hemo_vic_${i}"></td>
+                    <td class="sub-bg-contract"><input type="text" id="hemo_str_${i}"></td>
+                    <td class="sub-bg-contract"><input type="text" id="hemo_cpi_${i}"></td>
+                    <!-- Fluidos -->
+                    <td class="sub-bg-fluidos"><input type="text" id="hemo_tfc_${i}"></td>
+                    <td class="sub-bg-fluidos"><input type="text" id="hemo_svv_${i}"></td>
+                    <td class="sub-bg-fluidos"><input type="text" id="hemo_ftc_${i}"></td>
+                </tr>
+            `;
+
+            // Filas Estado y Conducta
+            tbodyEstado.innerHTML += `
+                <tr>
+                    <td style="font-weight:bold">${i}</td>
+                    <td>
+                        <div class="estado-container">
+                            <label><input type="radio" name="estado_${i}" value="Estable"> Estable</label>
+                            <label><input type="radio" name="estado_${i}" value="Inestable"> Inestable</label>
+                        </div>
+                    </td>
+                    <td><input type="text" id="conducta_${i}" placeholder="Escriba intervención..." style="text-align:left; padding-left:10px;"></td>
+                </tr>
+            `;
+        }
+    };
+
+    function exportarExcel() {
+        // 1. Obtener Datos del Paciente
+        const datosPaciente = [
+            ["DATOS DEL PACIENTE"],
+            ["Fecha", "Hora", "ID/Cama", "Edad", "Sexo", "Peso (kg)", "Talla (cm)", "PA (mmHg)", "SpO2 (%)", "Hb (g/dL)"],
+            [
+                document.getElementById('pac_fecha').value,
+                document.getElementById('pac_hora').value,
+                document.getElementById('pac_id').value,
+                document.getElementById('pac_edad').value,
+                document.getElementById('pac_sexo').value,
+                document.getElementById('pac_peso').value,
+                document.getElementById('pac_talla').value,
+                document.getElementById('pac_pa').value,
+                document.getElementById('pac_spo2').value,
+                document.getElementById('pac_hb').value
+            ],
+            [""] // Fila vacía separadora
+        ];
+
+        // 2. Cabeceras de la grilla de monitoreo (combinamos todas las tablas en una para el Excel)
+        const cabecerasGrilla = [
+            "Registro", 
+            "FC (lpm)", "TA (mmHg)", "FR (resp/min)", "Tº (ºC)", "SpO2 (%)", // Signos
+            "Flujo: HR", "Flujo: SV", "Flujo: SI", "Flujo: CO", "Flujo: CI", // Flujo
+            "Vasc: SVR", "Vasc: SVRI", // Vascular
+            "Contr: ICON", "Contr: VIC", "Contr: STR", "Contr: CPI", // Contractilidad
+            "Fluidos: TFC", "Fluidos: SVV", "Fluidos: FTC", // Fluidos
+            "Estado", "Conducta / Intervención" // Clinico
+        ];
+
+        const filasGrilla = [["MONITOREO HEMODINÁMICO Y CLÍNICO"], cabecerasGrilla];
+
+        // 3. Obtener Datos de los 4 registros
+        for (let i = 1; i <= 4; i++) {
+            // Capturar radio button seleccionado para estado
+            const estadoRadio = document.querySelector(`input[name="estado_${i}"]:checked`);
+            const estadoValor = estadoRadio ? estadoRadio.value : "";
+
+            const fila = [
+                i,
+                // Signos vitales
+                document.getElementById(`sv_fc_${i}`).value,
+                document.getElementById(`sv_ta_${i}`).value,
+                document.getElementById(`sv_fr_${i}`).value,
+                document.getElementById(`sv_t_${i}`).value,
+                document.getElementById(`sv_spo2_${i}`).value,
+                // Flujo
+                document.getElementById(`hemo_hr_${i}`).value,
+                document.getElementById(`hemo_sv_${i}`).value,
+                document.getElementById(`hemo_si_${i}`).value,
+                document.getElementById(`hemo_co_${i}`).value,
+                document.getElementById(`hemo_ci_${i}`).value,
+                // Vascular
+                document.getElementById(`hemo_svr_${i}`).value,
+                document.getElementById(`hemo_svri_${i}`).value,
+                // Contractilidad
+                document.getElementById(`hemo_icon_${i}`).value,
+                document.getElementById(`hemo_vic_${i}`).value,
+                document.getElementById(`hemo_str_${i}`).value,
+                document.getElementById(`hemo_cpi_${i}`).value,
+                // Fluidos
+                document.getElementById(`hemo_tfc_${i}`).value,
+                document.getElementById(`hemo_svv_${i}`).value,
+                document.getElementById(`hemo_ftc_${i}`).value,
+                // Clínico
+                estadoValor,
+                document.getElementById(`conducta_${i}`).value
+            ];
+            filasGrilla.push(fila);
+        }
+
+        // Combinar todos los arrays (Paciente + Grilla)
+        const datosCompletos = datosPaciente.concat(filasGrilla);
+
+        // 4. Crear el libro de Excel (Workbook) usando SheetJS
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(datosCompletos);
+
+        // Ajustar ancho de columnas para mejor lectura en Excel
+        ws['!cols'] = [
+            {wch: 10}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 10}, {wch: 12},
+            {wch: 10}, {wch: 10}, {wch: 10}, {wch: 10}, {wch: 10},
+            {wch: 12}, {wch: 12},
+            {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12},
+            {wch: 12}, {wch: 12}, {wch: 12},
+            {wch: 15}, {wch: 30}
+        ];
+
+        // Añadir la hoja al libro
+        XLSX.utils.book_append_sheet(wb, ws, "Reporte ICON");
+
+        // 5. Descargar el archivo
+        const nombreArchivo = `Monitoreo${document.getElementById('pac_id').value || 'Paciente'}_${document.getElementById('pac_fecha').value || 'SinFecha'}.xlsx`;
+        XLSX.writeFile(wb, nombreArchivo);
+    }
+</script>
+</body>
+</html>

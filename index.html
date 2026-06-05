@@ -75,7 +75,8 @@
 
         .patient-data {
             display: grid;
-            grid-template-columns: auto repeat(10, 1fr);
+            /* Ajustado para 11 columnas de datos + titulo */
+            grid-template-columns: auto repeat(11, 1fr);
             gap: 8px;
             border: 1px solid var(--border-color);
             padding: 12px;
@@ -138,7 +139,6 @@
             margin-bottom: 5px;
         }
 
-        /* Tablas */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -275,14 +275,9 @@
             background: linear-gradient(135deg, #34d399 0%, #059669 100%);
         }
 
-        .btn-exportar:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 10px rgba(4, 120, 87, 0.3);
-        }
-
         @media (max-width: 1024px) {
-            .patient-data { grid-template-columns: repeat(5, 1fr); }
-            .patient-data .title-box { grid-column: span 5; }
+            .patient-data { grid-template-columns: repeat(4, 1fr); }
+            .patient-data .title-box { grid-column: span 4; }
             .reference-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
@@ -329,6 +324,8 @@
         <div class="input-group"><label>PA (mmHg)</label><input type="text" id="pac_pa"></div>
         <div class="input-group"><label>SpO2 (%)</label><input type="text" id="pac_spo2"></div>
         <div class="input-group"><label>Hb (g/dL)</label><input type="text" id="pac_hb"></div>
+        <!-- Nuevo Item: Diagnóstico -->
+        <div class="input-group"><label>Diagnóstico</label><input type="text" id="pac_diag"></div>
     </div>
 
     <div class="section-header">SIGNOS VITALES</div>
@@ -397,6 +394,7 @@
         </table>
     </div>
 
+    <!-- Sección Valores de Referencia igual -->
     <div class="section-header" style="border-radius: 6px;">VALORES DE REFERENCIA</div>
     <div class="reference-grid">
         <div class="ref-card">
@@ -431,8 +429,8 @@
             <div class="ref-content" style="background-color:#faf5fa">
                 <div><span>ICON:</span> <span>> 35 Ohm</span></div>
                 <div><span>VIC:</span> <span>< 850 mL/m²</span></div>
-                <div><span>STR:</span> <span>(PEP/LVET) Valor relat.</span></div>
-                <div><span>CPI:</span> <span>Valor relativo</span></div>
+                <div><span>STR:</span> <span>(PEP/LVET)</span></div>
+                <div><span>CPI:</span> <span>Relativo</span></div>
             </div>
         </div>
         <div class="ref-card">
@@ -512,7 +510,7 @@
     function exportarExcel() {
         const datosPaciente = [
             ["DATOS DEL PACIENTE"],
-            ["Fecha", "Hora", "ID/Cama", "Edad", "Sexo", "Peso (kg)", "Talla (cm)", "PA (mmHg)", "SpO2 (%)", "Hb (g/dL)"],
+            ["Fecha", "Hora", "ID/Cama", "Edad", "Sexo", "Peso (kg)", "Talla (cm)", "PA (mmHg)", "SpO2 (%)", "Hb (g/dL)", "Diagnóstico"],
             [
                 document.getElementById('pac_fecha').value,
                 document.getElementById('pac_hora').value,
@@ -523,7 +521,8 @@
                 document.getElementById('pac_talla').value,
                 document.getElementById('pac_pa').value,
                 document.getElementById('pac_spo2').value,
-                document.getElementById('pac_hb').value
+                document.getElementById('pac_hb').value,
+                document.getElementById('pac_diag').value // Captura del nuevo campo
             ],
             [""] 
         ];
@@ -574,9 +573,10 @@
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(datosCompletos);
 
+        // Ajuste de anchos de columna para Excel
         ws['!cols'] = [
             {wch: 10}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 10}, {wch: 12},
-            {wch: 10}, {wch: 10}, {wch: 10}, {wch: 10}, {wch: 10},
+            {wch: 10}, {wch: 10}, {wch: 10}, {wch: 10}, {wch: 10}, {wch: 15}, // Extra para diagnóstico
             {wch: 12}, {wch: 12},
             {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12},
             {wch: 12}, {wch: 12}, {wch: 12},
